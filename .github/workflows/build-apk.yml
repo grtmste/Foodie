@@ -6,6 +6,9 @@ on:
       - claude/flutter-recipe-app-apk-c9gb61
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,3 +24,12 @@ jobs:
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Commit APK to repo
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk dist/app-release.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f dist/app-release.apk
+          git commit -m "Add built release APK [skip ci]" || echo "no changes"
+          git push
